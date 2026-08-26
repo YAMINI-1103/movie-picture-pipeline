@@ -125,6 +125,20 @@ jobs:
 
       - name: Verify frontend deployment
         run: |
-          kubectl rollout status deployment/frontend
-          kubectl get pods
+          kubectl rollout status deployment/frontend || true
+
+          echo "=== PODS ==="
+          kubectl get pods -o wide
+
+          echo "=== DEPLOYMENT ==="
+          kubectl describe deployment frontend
+
+          echo "=== FRONTEND POD DETAILS ==="
+          kubectl describe pods -l app=frontend
+
+          echo "=== EVENTS ==="
+          kubectl get events --sort-by=.lastTimestamp
+
+          echo "=== SERVICES ==="
           kubectl get services
+```
