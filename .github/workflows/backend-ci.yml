@@ -1,12 +1,9 @@
-name: Backend CI
+name: Backend Continuous Integration
 
 on:
   pull_request:
     branches:
       - main
-    paths:
-      - 'starter/backend/**'
-
   workflow_dispatch:
 
 jobs:
@@ -18,10 +15,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+
+      - name: Cache Pipenv
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/virtualenvs
+          key: backend-pipenv-${{ runner.os }}-${{ hashFiles('starter/backend/Pipfile.lock') }}
+          restore-keys: |
+            backend-pipenv-${{ runner.os }}-
 
       - name: Install Pipenv
         run: pip install pipenv
@@ -42,10 +47,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+
+      - name: Cache Pipenv
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/virtualenvs
+          key: backend-pipenv-${{ runner.os }}-${{ hashFiles('starter/backend/Pipfile.lock') }}
+          restore-keys: |
+            backend-pipenv-${{ runner.os }}-
 
       - name: Install Pipenv
         run: pip install pipenv
@@ -61,7 +74,6 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-
     needs:
       - lint
       - test
@@ -69,6 +81,26 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Cache Pipenv
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/virtualenvs
+          key: backend-pipenv-${{ runner.os }}-${{ hashFiles('starter/backend/Pipfile.lock') }}
+          restore-keys: |
+            backend-pipenv-${{ runner.os }}-
+
+      - name: Install Pipenv
+        run: pip install pipenv
+
+      - name: Install dependencies
+        working-directory: starter/backend
+        run: pipenv install --dev
 
       - name: Build Docker image
         working-directory: starter/backend
